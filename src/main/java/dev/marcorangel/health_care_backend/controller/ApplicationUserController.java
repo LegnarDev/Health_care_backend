@@ -3,6 +3,7 @@ package dev.marcorangel.health_care_backend.controller;
 import dev.marcorangel.health_care_backend.model.ApplicationUser;
 import dev.marcorangel.health_care_backend.repository.ApplicationUserRepository;
 import dev.marcorangel.health_care_backend.security.JwtUtil;
+import dev.marcorangel.health_care_backend.security.UserDetailsImpl;
 import dev.marcorangel.health_care_backend.service.ApplicationUserService;
 import dev.marcorangel.health_care_backend.service.UserAuthService;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,6 +30,7 @@ public class ApplicationUserController {
 
     private ApplicationUserRepository applicationUserRepository;
     private JwtUtil jwtUtil;
+    private PasswordEncoder encoder;
 
     //register user
     @PostMapping("/register")
@@ -35,7 +38,7 @@ public class ApplicationUserController {
 
         if (applicationUser == null)
             return ResponseEntity.badRequest().build();
-        applicationUserService.registerUser(applicationUser.getUser_name(), applicationUser.getPassword());
+        applicationUserService.registerUser(applicationUser.getUser_name(), encoder.encode(applicationUser.getPassword()));
         return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
     }
 
@@ -51,7 +54,7 @@ public class ApplicationUserController {
         log.info(String.valueOf(authentication));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserAuthService userAuthService = (UserAuthService) authentication.getPrincipal();
+        UserDetailsImpl userAuthService = (UserDetailsImpl) authentication.getPrincipal();
         ResponseCookie jwtCookie = jwtUtil.generateJwtCookie(userAuthService);
 
         return ResponseEntity.ok()

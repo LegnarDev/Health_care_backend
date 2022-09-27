@@ -2,6 +2,7 @@ package dev.marcorangel.health_care_backend.service;
 
 import dev.marcorangel.health_care_backend.model.ApplicationUser;
 import dev.marcorangel.health_care_backend.repository.ApplicationUserRepository;
+import dev.marcorangel.health_care_backend.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,14 @@ public class UserAuthService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         ApplicationUser user = applicationUserRepository.findByUsername(username);
-        return new User(user.getUser_name(), user.getPassword(), new ArrayList<>());
+        //return new User(user.getUser_name(), user.getPassword(), new ArrayList<>());
+        return UserDetailsImpl.builder()
+                .user_name(user.getUser_name())
+                .user_email(user.getUser_email())
+                .user_mobile(user.getUser_mobile())
+                .password(user.getPassword())
+                .location(user.getLocation())
+                .build();
     }
 
 }
