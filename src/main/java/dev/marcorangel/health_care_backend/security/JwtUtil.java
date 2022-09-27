@@ -2,8 +2,10 @@ package dev.marcorangel.health_care_backend.security;
 
 import dev.marcorangel.health_care_backend.service.UserAuthService;
 import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
@@ -13,13 +15,17 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class JwtUtil {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
+    @Value("${jwt.secret}")
     private String jwtSecret;
 
+    @Value("${jwt.token.validity}")
     private int jwtExpirationMs;
 
+    @Value("${jwt.token.name}")
     private String jwtCookie;
 
     public String getJwtFromCookies(HttpServletRequest request) {
@@ -31,8 +37,8 @@ public class JwtUtil {
         }
     }
 
-    public ResponseCookie generateJwtCookie(UserAuthService userPrincipal) {
-        String jwt = generateTokenFromUsername(userPrincipal.toString());
+    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
+        String jwt = generateTokenFromUsername(userPrincipal.getUsername());
         ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt).path("/").maxAge(24 * 60 * 60).httpOnly(true).build();
         return cookie;
     }
