@@ -1,27 +1,23 @@
 package dev.marcorangel.health_care_backend.controller;
 
 import dev.marcorangel.health_care_backend.model.ApplicationUser;
-import dev.marcorangel.health_care_backend.security.JwtUtil;
 import dev.marcorangel.health_care_backend.service.ApplicationUserService;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
 @Slf4j
+@Data
+@Builder
 public class ApplicationUserController {
     private ApplicationUserService applicationUserService;
 
@@ -46,9 +42,8 @@ public class ApplicationUserController {
     }
     //view user profile
     @GetMapping("/viewprofile/{userId}")
-    public ResponseEntity<String> viewProfile(@PathVariable String userId) {
-        applicationUserService.viewAllProfiles();
-        return new ResponseEntity<>("View all users", HttpStatus.OK);
+    public ResponseEntity<ApplicationUser> viewProfile(@PathVariable String userId) {
+        return new ResponseEntity<>(applicationUserService.viewAllProfiles(userId), HttpStatus.OK);
     }
     //edit user profile
     @PutMapping("/editprofile/{userId}")

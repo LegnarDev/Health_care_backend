@@ -3,10 +3,7 @@ package dev.marcorangel.health_care_backend.service;
 import dev.marcorangel.health_care_backend.model.Appointment;
 import dev.marcorangel.health_care_backend.repository.AppointmentRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
