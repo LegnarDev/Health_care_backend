@@ -1,6 +1,5 @@
 package dev.marcorangel.health_care_backend.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -17,16 +17,21 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class ApplicationUser implements UserDetails {
+
+    @Serial
+    private static final long serialVersionUID = -7134071441761498279L;
     @Id
     public String user_name;
     public String user_email;
     public String password;
     public String user_mobile;
     public String location;
-    public String token;
+
+    @Transient
+    private String token;
 
     public ApplicationUser(String user_name, String user_email, String password, String user_mobile, String location) {
         super();

@@ -3,11 +3,13 @@ package dev.marcorangel.health_care_backend.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -16,7 +18,9 @@ import java.util.Date;
 public class Appointment {
 
     @Id
-    private String booking_id;
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
+    @GeneratedValue(generator = "system-uuid")
+    private String booking_id = UUID.randomUUID().toString();
     private String disease;
 
     private Date tentativeDate;

@@ -97,7 +97,6 @@ public class HealthCareBackendApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
-        log.info("Test: " + JsonPath.read(result.getResponse().getContentAsString(), "$.token"));
         token = JsonPath.read(result.getResponse().getContentAsString(), "$.token");
         Patient p =  new Patient("patient2","patient2@hcs.com","8989998989", new Date());
         byte[] iJson1 = toJson(p);

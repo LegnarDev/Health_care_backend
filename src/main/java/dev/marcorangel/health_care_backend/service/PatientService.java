@@ -1,11 +1,9 @@
 package dev.marcorangel.health_care_backend.service;
 
-import dev.marcorangel.health_care_backend.model.ApplicationUser;
 import dev.marcorangel.health_care_backend.model.Patient;
 import dev.marcorangel.health_care_backend.repository.ApplicationUserRepository;
 import dev.marcorangel.health_care_backend.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -20,14 +18,16 @@ public class PatientService {
 
     private final ApplicationUserRepository applicationUserRepository;
 
-    public Patient register(Patient patientCreate, ApplicationUser authUser) {
-        //ApplicationUser userEntity = applicationUserRepository.findById(authUser.getUser_name()).orElseThrow(() -> new NullPointerException("User Not "))
-        return patientRepository.save(Patient.builder()
-                .patient_name(patientCreate.getPatient_name())
-                .patient_email(patientCreate.getPatient_email())
-                .patient_mobile(patientCreate.getPatient_mobile())
-                .registeredDate(new Date())
-                .build());
+    public String register(String patient_name, String patient_email, String patient_mobile, Date registeredDate) {
+        String patient_Id = "";
+        try {
+            Patient patient = new Patient(patient_name, patient_email, patient_mobile, registeredDate);
+            patientRepository.save(patient);
+            patient_Id = String.valueOf(patient.getPatient_Id());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return patient_Id;
     }
 
     public List<Patient> getAllPatients() {

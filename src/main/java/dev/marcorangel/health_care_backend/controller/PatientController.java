@@ -1,12 +1,10 @@
 package dev.marcorangel.health_care_backend.controller;
 
-import dev.marcorangel.health_care_backend.model.ApplicationUser;
 import dev.marcorangel.health_care_backend.model.Patient;
 import dev.marcorangel.health_care_backend.service.PatientService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,12 +17,9 @@ public class PatientController {
     private final PatientService patientService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> savePatient(@RequestBody Patient patient, @AuthenticationPrincipal ApplicationUser authUser) {
-        patientService.register(patient, authUser);
-        if (patientService.register(patient, authUser) == null)
-            return ResponseEntity.status(400).body("Registration failure");
-
-        return ResponseEntity.ok("Registration successful");
+    public ResponseEntity<String> savePatient(@RequestBody Patient patient) {
+        String patientId = patientService.register(patient.getPatient_name(), patient.getPatient_email(), patient.getPatient_mobile(), patient.getRegisteredDate());
+        return new ResponseEntity<>(patientId, HttpStatus.OK);
     }
 
     @GetMapping("/list")

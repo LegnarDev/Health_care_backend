@@ -28,7 +28,6 @@ public class JwtUtil implements Serializable {
     private int jwtExpirationMs;
 
     public String encode(String sub) {
-
         if (sub == null || sub.equals("")) {
             return null;
         }
@@ -43,10 +42,10 @@ public class JwtUtil implements Serializable {
 
     public String resolveToken(ServletRequest request) {
         String authHeader = ((HttpServletRequest) request).getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Token ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return null;
         }
-        return authHeader.substring("Token ".length());
+        return authHeader.substring("Bearer ".length());
     }
 
     public boolean validateToken(String jwt) {
