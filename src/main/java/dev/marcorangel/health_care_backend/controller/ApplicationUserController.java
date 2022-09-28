@@ -1,11 +1,8 @@
 package dev.marcorangel.health_care_backend.controller;
 
 import dev.marcorangel.health_care_backend.model.ApplicationUser;
-import dev.marcorangel.health_care_backend.repository.ApplicationUserRepository;
 import dev.marcorangel.health_care_backend.security.JwtUtil;
-import dev.marcorangel.health_care_backend.security.UserDetailsImpl;
 import dev.marcorangel.health_care_backend.service.ApplicationUserService;
-import dev.marcorangel.health_care_backend.service.UserAuthService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -15,53 +12,37 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @RestController
 @AllArgsConstructor
 @Slf4j
 public class ApplicationUserController {
-
     private ApplicationUserService applicationUserService;
-
-    private AuthenticationManager authenticationManager;
-
-    private ApplicationUserRepository applicationUserRepository;
-    private JwtUtil jwtUtil;
-    private PasswordEncoder encoder;
 
     //register user
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody ApplicationUser applicationUser) {
-
-        if (applicationUser == null)
+    public ResponseEntity<ApplicationUser> registerUser(@RequestBody ApplicationUser user) {
+        if (user == null)
             return ResponseEntity.badRequest().build();
-        applicationUserService.registerUser(applicationUser.getUser_name(), encoder.encode(applicationUser.getPassword()));
-        return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
+
+        return ResponseEntity.ok(applicationUserService.registerUser(user));
+    }
+
+    @GetMapping
+    public ApplicationUser currentUser(@AuthenticationPrincipal ApplicationUser authUser) {
+        return applicationUserService.currentUser(authUser);
     }
 
     //login user
     @PostMapping("/signin")
-    public ResponseEntity<String> loginUser(@RequestBody ApplicationUser user) {
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                    user.getUser_name(),
-                    user.getPassword()
-        ));
-
-        log.info(String.valueOf(authentication));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetailsImpl userAuthService = (UserDetailsImpl) authentication.getPrincipal();
-        ResponseCookie jwtCookie = jwtUtil.generateJwtCookie(userAuthService);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .body(new ApplicationUser(user.getUser_name(),
-                        user.getPassword()).toString()
-                );
+    public ResponseEntity<ApplicationUser> loginUser(@RequestBody ApplicationUser user) {
+        return ResponseEntity.ok(applicationUserService.loginUser(user));
     }
     //view user profile
     @GetMapping("/viewprofile/{userId}")

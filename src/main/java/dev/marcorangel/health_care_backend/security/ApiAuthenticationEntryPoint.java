@@ -1,41 +1,36 @@
 package dev.marcorangel.health_care_backend.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import dev.marcorangel.health_care_backend.model.ApplicationUser;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
-public class ApiAuthenticationEntryPoint  implements AuthenticationEntryPoint {
-    private static final Logger logger = LoggerFactory.getLogger(ApiAuthenticationEntryPoint.class);
+@RequiredArgsConstructor
+public class ApiAuthenticationEntryPoint implements Serializable {
 
-    @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
-        throws IOException, ServletException {
-        logger.error("Unauthorized error: {}", authException.getMessage());
+    @Serial
+    private static final long serialVersionUID = 1330736483562178207L;
 
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    private final UserDetailsService userDetailsService;
 
-        final Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-        body.put("error", "Unauthorized");
-        body.put("message", authException.getMessage());
-        body.put("path", request.getServletPath());
-
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(response.getOutputStream(), body);
+    public Authentication getAuthentication(String username) {
+        UserDetails userDetail = userDetailsService.loadUserByUsername(username);
+        if (userDetail == null) return null;
+        ApplicationUser applicationUser = (ApplicationUser) userDetail;
+        ApplicationUser authenticatedUser = ApplicationUser.builder()
+                .user_name(applicationUser.getUser_name())
+                .user_email(applicationUser.getUser_email())
+                .user_mobile(applicationUser.getUser_mobile())
+                .location(applicationUser.getLocation())
+                .build();
+        return new UsernamePasswordAuthenticationToken(authenticatedUser, "", userDetail.getAuthorities());
     }
 
 }

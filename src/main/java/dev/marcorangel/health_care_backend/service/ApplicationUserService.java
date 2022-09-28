@@ -2,17 +2,46 @@ package dev.marcorangel.health_care_backend.service;
 
 import dev.marcorangel.health_care_backend.model.ApplicationUser;
 import dev.marcorangel.health_care_backend.repository.ApplicationUserRepository;
+import dev.marcorangel.health_care_backend.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ApplicationUserService {
 
     private final ApplicationUserRepository applicationUserRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public void registerUser(String user_name,  String password) {
-        applicationUserRepository.save(new ApplicationUser(user_name, password));
+    public ApplicationUser registerUser(ApplicationUser user) {
+        ApplicationUser userRepository = applicationUserRepository.save(ApplicationUser.builder().user_name(user.getUser_name()).user_email(user.getUser_email()).password(passwordEncoder.encode(user.getPassword())).user_mobile(user.getUser_mobile()).location(user.getLocation()).token(jwtUtil.encode(user.getUser_name())).build());
+        log.info(userRepository.toString());
+        return userRepository;
+    }
+
+    public ApplicationUser loginUser(ApplicationUser user) {
+        if (user.getUser_email() == null) {
+            return applicationUserRepository.findByUsername(user.getUser_name()).filter(validateUser -> passwordEncoder.matches(user.getPassword(), validateUser.getPassword())).orElseThrow(() -> new NullPointerException("login information is invalid"));
+        }
+        return applicationUserRepository.findByEmail(user.getUser_email()).filter(validateUser -> passwordEncoder.matches(user.getPassword(), validateUser.getPassword())).orElseThrow(() -> new NullPointerException("login information is invalid"));
+    }
+
+    @Transactional(readOnly = true)
+    public ApplicationUser currentUser(ApplicationUser authUser) {
+        ApplicationUser userEntity = applicationUserRepository.findById(authUser.getUser_name()).orElseThrow(() -> new  NullPointerException("User not found"));
+        log.info("Current user: " + userEntity.getUser_name());
+        return ApplicationUser.builder()
+                .user_name(userEntity.getUser_name())
+                .user_email(userEntity.getUser_email())
+                .user_mobile(userEntity.getUser_mobile())
+                .location(userEntity.getLocation())
+                .token(jwtUtil.encode(userEntity.getUser_name())).build();
     }
 
     public String viewAllProfiles() {

@@ -1,8 +1,11 @@
 package dev.marcorangel.health_care_backend.service;
 
+import dev.marcorangel.health_care_backend.model.ApplicationUser;
 import dev.marcorangel.health_care_backend.model.Patient;
+import dev.marcorangel.health_care_backend.repository.ApplicationUserRepository;
 import dev.marcorangel.health_care_backend.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -15,7 +18,10 @@ public class PatientService {
 
     private final PatientRepository patientRepository;
 
-    public Patient register(Patient patientCreate) {
+    private final ApplicationUserRepository applicationUserRepository;
+
+    public Patient register(Patient patientCreate, ApplicationUser authUser) {
+        //ApplicationUser userEntity = applicationUserRepository.findById(authUser.getUser_name()).orElseThrow(() -> new NullPointerException("User Not "))
         return patientRepository.save(Patient.builder()
                 .patient_name(patientCreate.getPatient_name())
                 .patient_email(patientCreate.getPatient_email())

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ApplicationUserRepository  extends JpaRepository<ApplicationUser, String> {
-    @Query(value = "SELECT e FROM ApplicationUser e WHERE e.user_name = :user_name")
-    ApplicationUser findByUsername(@Param("user_name") String user_name);
+    @Query("SELECT u FROM ApplicationUser u WHERE  u.user_email = :user_email")
+    Optional<ApplicationUser> findByEmail(@Param("user_email") String user_email);
+    @Query("SELECT u FROM ApplicationUser u WHERE  u.user_name = :user_name")
+    Optional<ApplicationUser> findByUsername(@Param("user_name") String user_name);
 }
